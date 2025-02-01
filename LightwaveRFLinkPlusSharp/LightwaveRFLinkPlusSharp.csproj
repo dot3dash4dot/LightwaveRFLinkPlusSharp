@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
@@ -11,28 +10,27 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageTags>lightwaverf lightwave api wrapper binding csharp c-sharp c# .NET dotnet</PackageTags>
     <Copyright>Copyright © 2019</Copyright>
+    <PackageIcon>Lightwave.png</PackageIcon>
     <PackageIconUrl>https://raw.githubusercontent.com/dot3dash4dot/LightwaveRFLinkPlusSharp/master/Images/Lightwave.png</PackageIconUrl>
     <Version>1.1.2</Version>
-    <PackageIcon>Lightwave.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>LightwaveRFLinkPlusSharp.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="readme.txt">
-      <Pack>true</Pack>
-      <PackagePath>\</PackagePath>
-    </Content>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
-
   <ItemGroup>
     <None Include="..\Images\Lightwave.png">
       <Pack>True</Pack>
       <PackagePath>
       </PackagePath>
     </None>
+    <None Include="..\README.md" Link="README.md">
+      <Pack>True</Pack>
+      <PackagePath>
+      </PackagePath>
     </None>
   </ItemGroup>
 </Project>
