@@ -78,21 +78,25 @@ namespace LightwaveRFLinkPlusSharp
                 await RefreshAccessTokenAsync();
 
             }
-            else if (_currentAccessToken != null) // We have an access token in memory, so use that one
+            else
             {
-                // Do nothing - just return the token at the end of the method
-                _tokenRequestLog.AppendLine("Using access token in memory");
-            }
-            else if (File.Exists(_authResponseFileName)) // We don't have the access token in memory yet, so see if we have one stored from a previous request
-            {
-                _tokenRequestLog.AppendLine("Getting previous access token from file");
-                string previousAuthResponse = File.ReadAllText(_authResponseFileName);
-                JObject json = JsonConvert.DeserializeObject<JObject>(previousAuthResponse);
-                _currentAccessToken = json["access_token"].ToString();
-            }
-            else // Otherwise request a new one from Lightwave
-            {
-                await RefreshAccessTokenAsync();
+                if (_currentAccessToken != null) // We have an access token in memory, so use that one
+                {
+                    // Do nothing - just return the token at the end of the method
+                    _tokenRequestLog.AppendLine("Using access token in memory");
+                }
+                else if (File.Exists(_authResponseFileName)) // We don't have the access token in memory yet, so see if we have one stored from a previous request
+                {
+                    _tokenRequestLog.AppendLine("Getting previous access token from file");
+                    string previousAuthResponse = File.ReadAllText(_authResponseFileName);
+                    JObject json = JsonConvert.DeserializeObject<JObject>(previousAuthResponse);
+                    _currentAccessToken = json["access_token"]?.ToString();
+                }
+
+                if (_currentAccessToken == null) //If we still don't have an access token, request a new one from Lightwave
+                {
+                    await RefreshAccessTokenAsync();
+                }
             }
 
             if (Debugger.IsAttached && _previousRequestRequiredRefresh)
@@ -123,22 +127,26 @@ namespace LightwaveRFLinkPlusSharp
                 _tokenRequestLog.AppendLine("\tUsing Seed refresh token (forced)");
                 _currentRefreshToken = _seedRefreshToken;
             }
-            else if (_currentRefreshToken != null)
-            {
-                //Keep using the current refresh token
-                _tokenRequestLog.AppendLine("\tUsing refresh token in memory");
-            }
-            else if (File.Exists(_authResponseFileName))
-            {
-                _tokenRequestLog.AppendLine("\tUsing previous refresh token from file");
-                string previousAuthResponse = File.ReadAllText(_authResponseFileName);
-                JObject json = JsonConvert.DeserializeObject<JObject>(previousAuthResponse);
-                _currentRefreshToken = json["refresh_token"].ToString();
-            }
             else
             {
-                _tokenRequestLog.AppendLine("\tUsing Seed refresh token");
-                _currentRefreshToken = _seedRefreshToken;
+                if (_currentRefreshToken != null)
+                {
+                    //Keep using the current refresh token
+                    _tokenRequestLog.AppendLine("\tUsing refresh token in memory");
+                }
+                else if (File.Exists(_authResponseFileName))
+                {
+                    _tokenRequestLog.AppendLine("\tUsing previous refresh token from file");
+                    string previousAuthResponse = File.ReadAllText(_authResponseFileName);
+                    JObject json = JsonConvert.DeserializeObject<JObject>(previousAuthResponse);
+                    _currentRefreshToken = json["refresh_token"]?.ToString();
+                }
+
+                if (_currentRefreshToken == null) //If we still don't have a refresh token, use the seed token
+                {
+                    _tokenRequestLog.AppendLine("\tUsing Seed refresh token");
+                    _currentRefreshToken = _seedRefreshToken;
+                }
             }
 
             string body = JsonConvert.SerializeObject(new
