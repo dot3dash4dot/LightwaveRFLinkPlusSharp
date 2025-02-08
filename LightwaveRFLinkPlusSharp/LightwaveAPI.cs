@@ -236,17 +236,17 @@ namespace LightwaveRFLinkPlusSharp
         /// <returns>A dictionary of the feature IDs and values. Any unknown feature IDs will return with a value of 0. Any invalid feature IDs will result in a <see cref="LightwaveAPIRequestException"/> being thrown</returns>
         /// <exception cref="UnexpectedJsonException">Thrown when the Json received from the web API call can not be parsed as expected</exception>
         /// <exception cref="LightwaveAPIRequestException">Thrown when the web API call returns an unsuccessful status</exception>
-        public async Task<Dictionary<string, int>> GetFeatureValuesAsync(IEnumerable<string> featureIds)
+        public async Task<Dictionary<string, long>> GetFeatureValuesAsync(IEnumerable<string> featureIds)
         {
             var featureIdsArray = featureIds.Select(x => new { featureId = x });
             string body = JsonConvert.SerializeObject(new { features = featureIdsArray });
 
             JObject json = await PostAsync("features/read", body);
 
-            Dictionary<string, int> results;
+            Dictionary<string, long> results;
             try
             {
-                results = json.ToObject<Dictionary<string, int>>();
+                results = json.ToObject<Dictionary<string, long>>();
             }
             catch
             {
@@ -319,7 +319,7 @@ namespace LightwaveRFLinkPlusSharp
         /// <exception cref="LightwaveAPIRequestException">Thrown when the web API call returns an unsuccessful status</exception>
         public async Task PopulateFeatureValuesAsync(Device device)
         {
-            Dictionary<string, int> featureValues = await GetFeatureValuesAsync(device.Features.Select(x => x.Id));
+            Dictionary<string, long> featureValues = await GetFeatureValuesAsync(device.Features.Select(x => x.Id));
 
             foreach (var featureValue in featureValues)
             {
@@ -343,18 +343,18 @@ namespace LightwaveRFLinkPlusSharp
         /// <exception cref="FeatureNotFoundException">Thrown when the specified Feature cannot be found</exception>
         /// <exception cref="UnexpectedJsonException">Thrown when the Json received from the web API call can not be parsed as expected</exception>
         /// <exception cref="LightwaveAPIRequestException">Thrown when the web API call returns an unsuccessful status</exception>
-        public async Task<int> GetFeatureTimeZoneAdjusted(string timeBasedFeatureId, string timeZoneFeatureId)
+        public async Task<long> GetFeatureTimeZoneAdjusted(string timeBasedFeatureId, string timeZoneFeatureId)
         {
-            Dictionary<string, int> values = await GetFeatureValuesAsync(new[] { timeZoneFeatureId, timeBasedFeatureId });
+            Dictionary<string, long> values = await GetFeatureValuesAsync(new[] { timeZoneFeatureId, timeBasedFeatureId });
 
-            int lightwaveOffsetSeconds = values[timeZoneFeatureId];
+            long lightwaveOffsetSeconds = values[timeZoneFeatureId];
 
             TimeSpan computerOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
-            int computerOffsetSeconds = (int)computerOffset.TotalSeconds;
+            long computerOffsetSeconds = (long)computerOffset.TotalSeconds;
 
-            int offsetSeconds = computerOffsetSeconds - lightwaveOffsetSeconds;
+            long offsetSeconds = computerOffsetSeconds - lightwaveOffsetSeconds;
 
-            int offsetTime = values[timeBasedFeatureId] + offsetSeconds;
+            long offsetTime = values[timeBasedFeatureId] + offsetSeconds;
 
             return offsetTime;
         }
@@ -409,7 +409,7 @@ namespace LightwaveRFLinkPlusSharp
         /// <exception cref="LightwaveAPIRequestException">Thrown when the web API call returns an unsuccessful status</exception>
         public async Task<TimeSpan> GetDuskTimeTimeZoneAdjustedAsync(Device device)
         {
-            int featureValue = await GetFeatureTimeZoneAdjusted(device.DuskTimeFeatureId, device.TimeZoneFeatureId);
+            long featureValue = await GetFeatureTimeZoneAdjusted(device.DuskTimeFeatureId, device.TimeZoneFeatureId);
             return TimeSpan.FromSeconds(featureValue);
         }
 

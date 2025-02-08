@@ -10,7 +10,7 @@ namespace LightwaveRFLinkPlusSharp
     {
         public string Type { get; set; }
         public string Id { get; set; }
-        public int? Value { get; set; }
+        public long? Value { get; set; }
 
         internal Feature(string type, string id, int? value = null)
         {
